@@ -1,0 +1,2 @@
+﻿form_id,alan_adi,alan_tipi,sozluk,zorluk,doktor,tarama,ref,ham,sozluk_sonrasi,cer,wer,dogru_ham,dogru_sozluk,guven
+F0001,hasta_adi,el_yazisi,-,DOLDUR: kolay|orta|zor,DOLDUR,DOLDUR: iyi|orta|kotu,DOLDUR: görüntüde yazan doğru metin,,,1.0,1.0,False,False,

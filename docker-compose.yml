@@ -1,0 +1,17 @@
+# Faz 1 — TrOCR hızlı testi
+# Kullanım:
+#   docker compose build
+#   docker compose run --rm trocr                  # tahmin üret
+#   docker compose run --rm trocr --gt-taslak      # etiketleme taslağı üret
+
+services:
+  trocr:
+    build: .
+    image: poc-trocr:0.1          # sürüm sabit — benchmarking için not edin
+    mem_limit: 5g                 # 8 GB makinede OOM sistemi kilitlemesin
+    cpus: 4
+    volumes:
+      - ./data:/data              # giriş kırpıntıları + çıktı JSON'ları
+      - ./models:/models          # model ağırlık önbelleği (~1.3 GB, tek sefer iner)
+    environment:
+      - HF_HOME=/models

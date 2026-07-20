@@ -1,0 +1,14 @@
+{
+  "form_id": "F0001",
+  "zorluk": "DOLDUR: kolay|orta|zor",
+  "doktor_kodu": "DOLDUR",
+  "tarama_kalitesi": "DOLDUR: iyi|orta|kotu",
+  "alanlar": [
+    {
+      "alan_adi": "hasta_adi",
+      "alan_tipi": "el_yazisi",
+      "sozluk": null,
+      "deger": "DOLDUR: görüntüde yazan doğru metin"
+    }
+  ]
+}

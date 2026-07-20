@@ -1,0 +1,51 @@
+{
+  "form_id": "F0001",
+  "model": "microsoft/trocr-base-handwritten",
+  "alanlar": [
+    {
+      "alan_adi": "allerji_epilepsi",
+      "deger": "# allumin # Ellens G.",
+      "guven": 0.3625
+    },
+    {
+      "alan_adi": "boy_kilo",
+      "deger": "But it got into a total of the total of the total of total of total levels that were",
+      "guven": 0.2579
+    },
+    {
+      "alan_adi": "lab_idrar",
+      "deger": "war. Tip- in noon",
+      "guven": 0.4185
+    },
+    {
+      "alan_adi": "lab_kan",
+      "deger": "can American girl,",
+      "guven": 0.3574
+    },
+    {
+      "alan_adi": "meslek",
+      "deger": "Messiologists ( Edinburgh ( Government",
+      "guven": 0.3803
+    },
+    {
+      "alan_adi": "nabiz",
+      "deger": "the CEC was able to be able to be able to be able to",
+      "guven": 0.2917
+    },
+    {
+      "alan_adi": "onceki_isyeri",
+      "deger": "#",
+      "guven": 0.1003
+    },
+    {
+      "alan_adi": "radyoloji",
+      "deger": "\" After Plain in 1951",
+      "guven": 0.3041
+    },
+    {
+      "alan_adi": "tansiyon",
+      "deger": "THE CUP. and # with the remainder of the American Parliament of the United States",
+      "guven": 0.3905
+    }
+  ]
+}
