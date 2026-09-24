@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Yazılı Formlar Nasıl Bilgisayara Aktarılıyor?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f7f5f0;
+    --rule: #d8d4cc;
+    --accent: #2563a8;
+    --accent-light: #dbeafe;
+    --teal: #0f766e;
+    --teal-light: #ccfbf1;
+    --amber: #92400e;
+    --amber-light: #fef3c7;
+    --coral: #9f1239;
+    --coral-light: #ffe4e6;
+    --purple: #5b21b6;
+    --purple-light: #ede9fe;
+    --gray: #6b7280;
+    --gray-light: #f3f4f6;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  html { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.65; }
+  body { padding-bottom: 60px; }
+
+  .page { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+
+  /* HERO */
+  .hero { padding: 64px 0 40px; border-bottom: 1px solid var(--rule); margin-bottom: 8px; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 12px; color: var(--gray); margin-bottom: 18px; }
+  .hero-title { font-size: 34px; font-weight: 600; line-height: 1.25; letter-spacing: -.01em; margin-bottom: 18px; }
+  .hero-sub { font-size: 17px; color: #374151; max-width: 620px; line-height: 1.75; }
+
+  .stat-row { display: flex; gap: 28px; margin-top: 32px; flex-wrap: wrap; }
+  .stat { }
+  .stat-num { font-size: 28px; font-weight: 600; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--gray); margin-top: 6px; max-width: 140px; line-height: 1.4; }
+
+  /* SECTIONS */
+  .section { margin: 52px 0; }
+  .section-title { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
+  .section-intro { font-size: 16px; color: #374151; margin-bottom: 24px; line-height: 1.75; }
+
+  .callout {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 4px;
+    font-size: 15px;
+    color: #1e3a5f;
+    margin: 24px 0;
+    line-height: 1.65;
+  }
+  .callout strong { color: var(--accent); }
+
+  /* STEP CARDS */
+  .step {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px 0;
+  }
+  .step-icon {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-icon svg { width: 18px; height: 18px; }
+  .step-head-text { flex: 1; min-width: 0; }
+  .step-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--gray); margin-bottom: 2px; }
+  .step-title { font-size: 17px; font-weight: 600; }
+
+  /* HERO MINI FLOW */
+  .hero-flow { display: flex; align-items: center; gap: 10px; margin-top: 36px; flex-wrap: wrap; }
+  .hero-flow-item { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 92px; }
+  .hero-flow-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-flow-icon svg { width: 26px; height: 26px; }
+  .hero-flow-label { font-size: 12px; color: var(--gray); text-align: center; line-height: 1.35; }
+  .hero-flow-arrow { color: var(--rule); flex-shrink: 0; margin-bottom: 24px; }
+  .hero-flow-arrow svg { width: 20px; height: 20px; }
+  @media (max-width: 500px) {
+    .hero-flow-item { width: 78px; }
+    .hero-flow-label { font-size: 11px; }
+  }
+  .step-body { padding: 12px 24px 22px 72px; }
+  .step-text { font-size: 15.5px; color: #374151; line-height: 1.75; }
+  .step-text strong { color: var(--ink); }
+
+  .step-status {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em;
+    padding: 3px 9px; border-radius: 20px; font-weight: 500;
+    margin-left: auto; white-space: nowrap;
+  }
+  .status-done { background: var(--teal-light); color: var(--teal); }
+  .status-progress { background: var(--amber-light); color: var(--amber); }
+  .status-todo { background: var(--gray-light); color: var(--gray); }
+
+  /* DETAILS / TECH TOGGLE */
+  details {
+    margin: 14px 72px 0;
+  }
+  details summary {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    padding: 8px 0;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: '▸';
+    display: inline-block;
+    transition: transform 0.15s ease;
+    font-size: 10px;
+  }
+  details[open] summary::before {
+    transform: rotate(90deg);
+  }
+  details summary:hover { color: #1a3f6b; }
+  .tech-panel {
+    background: var(--gray-light);
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .tech-panel code {
+    font-family: var(--mono);
+    background: #fff;
+    border: 1px solid var(--rule);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .tech-panel ul { margin: 6px 0 0 18px; }
+  .tech-panel li { margin-bottom: 4px; }
+  .tech-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tech-tag {
+    font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 3px;
+    background: #fff; border: 1px solid var(--rule); color: #4b5563;
+  }
+
+  /* GLOSSARY */
+  .glossary { display: grid; gap: 14px; }
+  .gloss-item { border-left: 3px solid var(--rule); padding-left: 16px; }
+  .gloss-term { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .gloss-def { font-size: 14.5px; color: #374151; line-height: 1.6; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin: 16px 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); margin-bottom: 6px; }
+  .progress-track { height: 10px; background: var(--gray-light); border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 5px; }
+
+  footer {
+    margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 12px; color: var(--gray);
+  }
+
+  @media (max-width: 600px) {
+    .hero-title { font-size: 27px; }
+    .step-body { padding-left: 24px; }
+    details { margin-left: 24px; margin-right: 0; }
+    .step-head { flex-wrap: wrap; }
+    .step-status { margin-left: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">🏥 SAĞLIK FORMLARI DİJİTALLEŞTİRME PROJESİ</div>
+    <h1 class="hero-title">Doktorların el yazısıyla doldurduğu formlar,<br>bilgisayara nasıl aktarılıyor?</h1>
+    <p class="hero-sub">
+      Bir hastanede binlerce kağıt sağlık formu var — her biri elle dolduruldu.
+      Bu formları tek tek bilgisayara yazmak aylarca sürerdi. Bunun yerine,
+      formların fotoğrafını çekip bilgisayara "bu yazıları sen oku" öğretiyoruz.
+      Aşağıda bu işin nasıl yapıldığını, adım adım ve sade bir dille anlatıyoruz.
+      Meraklısı için her adımın altında <strong>🔧 Teknik detaylar</strong> kutusu var.
+    </p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num">60.000</div>
+        <div class="stat-label">Toplam işlenecek form</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">48</div>
+        <div class="stat-label">Şu ana kadar hazırlanan form</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">%98,8</div>
+        <div class="stat-label">Sağlıklı formlarda model doğruluğu (ikinci öğrenme denemesi)</div>
+      </div>
+    </div>
+
+    <div class="hero-flow">
+      <div class="hero-flow-item">
+        <div class="hero-flow-icon" style="background: var(--gray-light)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4b5563" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+            <path d="M15 2v5h5"/>
+            <path d="M8 13h8M8 17h5"/>
+          </svg>
+        </div>
+        <div class="hero-flow-label">Elle dolan<br>kağıt form</div>
+      </div>
+      <div class="hero-flow-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </div>
+      <div class="hero-flow-item">
+        <div class="hero-flow-icon" style="background: var(--accent)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6.5" cy="6.5" r="2"/>
+            <circle cx="17.5" cy="6.5" r="2"/>
+            <circle cx="12" cy="17" r="2"/>
+            <path d="M8 7.5 10.5 15"/>
+            <path d="M16 7.5 13.5 15"/>
+            <path d="M8.5 6.5h7"/>
+          </svg>
+        </div>
+        <div class="hero-flow-label">Bilgisayar<br>öğrenip okuyor</div>
+      </div>
+      <div class="hero-flow-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </div>
+      <div class="hero-flow-item">
+        <div class="hero-flow-icon" style="background: var(--teal)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5.5" rx="7.5" ry="2.7"/>
+            <path d="M4.5 5.5v6c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7v-6"/>
+            <path d="M4.5 11.5v6c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7v-6"/>
+          </svg>
+        </div>
+        <div class="hero-flow-label">Aranabilir<br>dijital kayıt</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Kısaca: bu proje ne yapıyor?</h2>
+    <p class="section-intro">
+      Bir doktorun kağıda elle yazdığı bir formu düşünün: hastanın adı, tansiyonu,
+      alerjileri, kan grubu gibi bilgiler. Bu bilgiler kağıtta kaldığı sürece
+      aranamaz, raporlanamaz, başka bir sistemde kullanılamaz. Amacımız,
+      bu kağıtların fotoğrafını çekip bir bilgisayar programına "bu el yazısını
+      oku ve yaz" işini öğretmek — böylece 60.000 form kısa sürede dijital,
+      aranabilir kayıtlara dönüşsün.
+    </p>
+    <div class="callout">
+      Bunu yapmak için bilgisayara <strong>örnekler göstererek öğretiyoruz</strong> —
+      tıpkı bir çocuğa "bu harf A'dır, bu harf B'dir" diye defalarca gösterip
+      öğretmek gibi. Ne kadar çok doğru örnek gösterirsek, bilgisayar o kadar
+      iyi öğreniyor.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Adım adım nasıl çalışıyor?</h2>
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--gray)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+            <circle cx="12" cy="13" r="3.3"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 1</div>
+          <div class="step-title">Doktor formun fotoğrafını çekiyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Her hasta için doktor telefonuyla iki fotoğraf çekiyor: formun ön yüzü
+          (isim, meslek, alerjiler gibi bilgiler) ve arka yüzü (tansiyon, nabız,
+          boy, kilo gibi muayene sonuçları).
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Dosya adlandırması: <code>KISI1.jpeg</code> (ön sayfa — çalışan bilgileri),
+          <code>KISI2.jpeg</code> (arka sayfa — muayene sonuçları). Sunucuda
+          <code>formlar_yeni/</code> klasöründe saklanıyor. Karşılaştırma için
+          kullanılan boş, dolmamış şablon: <code>sablon/page_001.jpg</code> ve
+          <code>page_002.jpg</code> (300 DPI, 2480×3509 piksel).
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--accent)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8V5a1 1 0 0 1 1-1h3"/>
+            <path d="M16 4h3a1 1 0 0 1 1 1v3"/>
+            <path d="M20 16v3a1 1 0 0 1-1 1h-3"/>
+            <path d="M8 20H5a1 1 0 0 1-1-1v-3"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 2</div>
+          <div class="step-title">Eğik çekilen fotoğraf düzeltiliyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Elle tutulan bir telefonla çekilen fotoğraf neredeyse hiçbir zaman
+          tam düz olmuyor — biraz eğik, biraz yamuk, biraz uzaktan ya da yakından
+          çekilmiş oluyor. Bilgisayar bu fotoğrafı, temiz ve boş bir form
+          örneğiyle karşılaştırarak <strong>sanki tarayıcıdan geçmiş gibi</strong>
+          düzeltiyor. Böylece "tansiyon her zaman sayfanın şu köşesinde" diyebiliyoruz.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Yöntem: <strong>SIFT</strong> algoritması iki görüntüdeki (boş şablon +
+          gerçek fotoğraf) eşleşen özgün noktaları buluyor, <strong>RANSAC</strong>
+          bu eşleşmelerden yamukluğu hesaplıyor, <strong>warpPerspective</strong>
+          fotoğrafı düzleştiriyor. Script: <code>homography_alan_kes.py</code>.
+          Şu ana kadar 48 formun 47'si tam, 1'i (sercan) yarım (1 sayfa eksik)
+          şekilde işlendi — hepsi başarıyla hizalandı.
+          <div class="tech-tags">
+            <span class="tech-tag">opencv-contrib-python</span>
+            <span class="tech-tag">numpy</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--teal)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2v14a2 2 0 0 0 2 2h14"/>
+            <path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 3</div>
+          <div class="step-title">Her bilgi kutucuğu ayrı ayrı kesiliyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Düzeltilen fotoğraftan "tansiyon" yazan kutu, "isim" yazan kutu, "kan
+          grubu" yazan kutu gibi her alan tek tek küçük resimler halinde kesiliyor.
+          Bir form, ortalama 92 küçük parçaya bölünüyor.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Her alanın sayfadaki konumu <code>sablon_koordinatlari.json</code>
+          dosyasında oransal olarak (0.0–1.0 arası) tanımlı — örn. "tansiyon
+          sayfanın %57'sinde". Kesilen küçük resimler
+          <code>data/giris_flat/{kişi}__{alan}.jpg</code> formatında kaydediliyor.
+          Şu ana kadar 4.367 alan kesildi.
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--purple)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 4</div>
+          <div class="step-title">Bir insan, bilgisayara doğru cevabı öğretiyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Bilgisayarın bir şeyi öğrenebilmesi için önce ona doğru cevapların
+          ne olduğunu göstermemiz gerekiyor — tıpkı bir öğretmenin sınav
+          kağıdının cevap anahtarını hazırlaması gibi. Bir kişi, kesilmiş her
+          küçük resme bakıp "burada ne yazıyor?" sorusunun cevabını bir
+          bilgisayar programına giriyor. Bu iş için özel bir ekran hazırlandı:
+          solda resim, sağda "buraya ne yazıyor?" kutusu.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Araç: <code>etiketle.py</code>, tarayıcı üzerinden çalışan bir Flask
+          web uygulaması. Kişisel sağlık verisi olduğu için dışarıya kapalı —
+          sadece şifreli bir SSH tüneli ile erişilebiliyor (port 5050).
+          4.367 alanın tamamı (%100) etiketlendi.
+          <div class="tech-tags">
+            <span class="tech-tag">Flask</span>
+            <span class="tech-tag">SSH tüneli</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--accent)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5.5" rx="7.5" ry="2.7"/>
+            <path d="M4.5 5.5v6c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7v-6"/>
+            <path d="M4.5 11.5v6c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7v-6"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 5</div>
+          <div class="step-title">Doğru cevaplar güvenli şekilde saklanıyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Girilen her doğru cevap kaybolmasın diye iki yerde birden saklanıyor:
+          hem bir yedek dosyada hem de düzenli bir veritabanında — tıpkı önemli
+          bir belgenin hem bilgisayarda hem de bulutta yedeklenmesi gibi.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          "Çift yazma" (dual-write) yöntemi: her kayıt hem
+          <strong>PostgreSQL</strong> veritabanına hem de JSON yedek dosyasına
+          yazılıyor. Veritabanı Docker konteynerinde çalışıyor
+          (<code>trocr_postgres</code>), JSON yedekler
+          <code>data/cikti/ground_truth/</code> klasöründe — bu klasör hiçbir
+          zaman internete (GitHub'a) yüklenmiyor, sadece sunucuda yerel kalıyor.
+          <div class="tech-tags">
+            <span class="tech-tag">PostgreSQL</span>
+            <span class="tech-tag">Docker</span>
+            <span class="tech-tag">JSON backup</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--amber)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16l-6 8v6l-4 2v-8z"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 6</div>
+          <div class="step-title">Bozuk veya hatalı örnekler ayıklanıyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Bazı kesilen resimler yanlış yeri gösteriyor (kutucuk kaymış), bazılarında
+          el yazısı o kadar bozuk ki hiç okunamıyor. Bu tür hatalı örnekleri
+          bilgisayara "doğru cevap" diye göstermek, onu yanıltır — tıpkı bir
+          öğrenciye yanlış cevap anahtarı vermek gibi. Bu yüzden bu örnekler
+          öğretim materyalinden çıkarılıyor.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          <code>finetune_trocr.py</code> içindeki filtreler otomatik olarak
+          şunları eğitim dışı bırakıyor:
+          <ul>
+            <li><strong>222 kayıt</strong> — koordinat kaymış kırpıntılar
+              (etiket: <code>yeniden çelikmeli kayma var</code>)</li>
+            <li><strong>66 kayıt</strong> — tamamen okunamayan el yazısı
+              (etiket: <code>okunamiyor</code>)</li>
+            <li><strong>2 kayıt</strong> — henüz etiketlenmemiş boş değer</li>
+            <li><strong>1 form</strong> — referans şablonu (gerçek hasta değil)</li>
+          </ul>
+          Sonuç: 4.367 alandan <strong>3.985 temiz eğitim örneği</strong> kaldı.
+          Bu iş, önceki bir oturumda script hâlâ eski bir etiket ismini aradığı
+          için sessizce atlanıyordu — sonradan fark edilip düzeltildi.
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--coral)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="2"/>
+            <circle cx="18" cy="6" r="2"/>
+            <circle cx="12" cy="18" r="2"/>
+            <path d="M7.7 7.3 10.5 16"/>
+            <path d="M16.3 7.3 13.5 16"/>
+            <path d="M8 6h8"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 7</div>
+          <div class="step-title">Bilgisayar örneklerden öğreniyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Bilgisayara temizlenmiş binlerce örnek gösterildi. Bilgisayar
+          her örnekte bir tahmin yaptı, yanlışsa düzeltildi, bunu binlerce
+          kez tekrarladı — bir çocuğun okuma yazmayı öğrenirken defalarca
+          deneme yapması gibi, ama çok daha hızlı ve çok daha fazla tekrarla.
+          Bu "öğrenme" işlemi bilgisayarın işlemcisini yaklaşık 3 gün boyunca
+          kesintisiz yoğun şekilde çalıştırdı.
+        </p>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>İkinci öğrenme denemesi (daha büyük ve temiz veriyle)</span>
+            <span>Tamamlandı</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+        </div>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Kullanılan hazır model: <code>microsoft/trocr-base-handwritten</code>
+          (TrOCR), <code>finetune_trocr.py</code> ile Türkçe el yazısına
+          alıştırıldı. Grafik kartı (GPU) yok, tamamen işlemci (CPU) üzerinde
+          çalıştı — bu yüzden yavaş.
+          <ul>
+            <li><strong>v3 (tamamlandı):</strong> 22 kişi, 1.720 örnek, en iyi
+              hata oranı (CER) %44,1</li>
+            <li><strong>v4 (TAMAMLANDI):</strong> 47 kişi, 3.985 temiz örnek,
+              10 tur (epoch), toplam ~75 saat. En iyi sonuç epoch 10'da:
+              hata oranı (CER) <strong>%12,43</strong> — v3'e göre büyük
+              iyileşme.</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tech-tag">TrOCR</span>
+            <span class="tech-tag">transformers</span>
+            <span class="tech-tag">torch</span>
+            <span class="tech-tag">CPU eğitim</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--teal)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="4" width="14" height="17" rx="2"/>
+            <path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1z"/>
+            <path d="M8.5 13.3 11 15.8l4.5-5"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 8</div>
+          <div class="step-title">Bilgisayar ne kadar iyi öğrendi, ölçülüyor</div>
+        </div>
+        <span class="step-status status-done">Tamamlandı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Bir öğrenciye sınav yapar gibi, bilgisayara daha önce görmediği
+          resimler gösterildi ve "bunda ne yazıyor?" diye soruldu. Verdiği
+          cevap gerçek cevapla karşılaştırılıp, kaç harfi yanlış okuduğu
+          sayıldı. Sonuç: bilgisayar, özellikle net çekilmiş fotoğraflarda,
+          artık neredeyse insan kadar doğru okuyor.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Ölçüm birimi: <strong>CER (Karakter Hata Oranı)</strong> — okunan
+          metindeki yanlış/eksik/fazla harf oranı. Düşük CER = iyi.
+          <ul>
+            <li><strong>v3 sonucu:</strong> Genel CER %44,1 — sabit
+              seçeneklerde (boş / Evet / Hayır / NFM gibi) doğruluk %97,5,
+              serbest yazılan metinlerde (ad, adres, doktor notu gibi) sadece
+              %42,8 idi.</li>
+            <li><strong>v4 sonucu (net/kaliteli fotoğraflarla, 460 alanlık
+              test):</strong> Genel <strong>%98,8</strong> tam eşleşme,
+              ortalama CER <strong>%0,2</strong> — hem sabit seçeneklerde
+              (%100) hem serbest metinde (%97,5) çok yüksek doğruluk.</li>
+            <li>Bilgisayarın verdiği her cevabın yanında bir de "ne kadar
+              eminim" skoru (güven skoru) üretiliyor. Ölçümlere göre,
+              bilgisayar %95 ve üzeri eminse doğruluk %99; eminliği
+              düştükçe (özellikle %85'in altına inince) hata oranı hızla
+              artıyor. Bu skor, ileride hangi alanların mutlaka bir insan
+              tarafından kontrol edilmesi gerektiğine karar vermek için
+              kullanılacak.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--gray)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/>
+            <path d="M13 6l6 6-6 6"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 9</div>
+          <div class="step-title">Bilgisayar 60.000 formu okumaya başlıyor</div>
+        </div>
+        <span class="step-status status-progress">Devam ediyor</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Öğrenme tamamlandığına göre sıra, bilgisayarı gerçek işe koşmaya
+          geldi: 60.000 formun tamamını okuyup dijital kayda dökmek. Ama
+          bunu tek bir bilgisayarda, hızlıca yapmak mümkün değil — her form
+          onlarca kutucuktan oluşuyor ve her kutucuğu okumak birkaç saniye
+          sürüyor. Bu yüzden işi, sunucuyu günlerce/haftalarca durmadan
+          arka planda çalıştırarak, adım adım tamamlamayı planlıyoruz.
+        </p>
+        <p class="step-text" style="margin-top: 12px">
+          Bu süreci hızlandırmak için "önce boş görünen kutucukları hiç
+          okumadan atla" fikri denendi, ama formun basım şeklinden
+          kaynaklanan bir sorun yüzünden bu yöntem güvenilir çalışmadı
+          (detaylar aşağıda). Bu yüzden şimdilik en güvenli ve öngörülebilir
+          yol seçildi: bilgisayarı olabildiğince verimli ayarlayıp uzun
+          süre boyunca kesintisiz çalıştırmak.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Kullanılan araçlar: <code>trocr_calistir.py</code> (form okuma +
+          güven skoru üretme), <code>degerlendir.py</code> (sonuçları ölçme).
+          <ul>
+            <li><strong>Hız sorunu:</strong> tek tek okuma 3,7 saniye/alan
+              sürüyor — 60.000 form × ~92 alan için bu hızla ~236 gün
+              gerekir. Birkaç kutucuğu aynı anda işlemeyi denedik
+              ("toplu işleme"), ama beklenenin aksine bu YAVAŞLATTI
+              (bilgisayarın en uzun cevabı üretecek kutucuğu beklemesi
+              gerekiyor). Bunun yerine bilgisayara aynı anda 3 ayrı "okuma
+              süreci" çalıştırmak (paralel işleme) hızı <strong>2,73
+              saniye/alan</strong>'a indirdi.</li>
+            <li>Sunucunun başka işlerle (bizim projeyle ilgisiz servislerle)
+              paylaşımlı olduğu tespit edildi — bu, beklenen hızlanmayı
+              sınırlıyor. Daha güçlü/ayrılmış bir sunucu ya da grafik
+              kartı (GPU) şu an için maliyet/erişim sebebiyle seçenek
+              değil.</li>
+            <li><strong>"Boş kutucukları atla" denemesi (sonuçlandı,
+              kullanılmıyor):</strong> Kutucuktaki koyu piksel miktarına
+              bakarak "muhtemelen boş" olanları önceden ayıklamayı üç
+              farklı şekilde denedik. Hiçbiri güvenilir çıkmadı — sebebi,
+              kesilen kutucukların çoğunun (form üzerindeki basılı soru
+              metinleri, tablo çizgileri yüzünden) doktor hiçbir şey
+              yazmasa bile bir miktar "mürekkep" içermesi; bu da gerçekten
+              boş olan kutucuklarla dolu olanları piksel bazında
+              ayırt edilemez hale getiriyor. Bu sorunu tam çözmek, formun
+              kesim koordinatlarının tamamını elden geçirip modeli yeniden
+              eğitmeyi gerektirir — büyük bir iş, şimdilik ertelendi.</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tech-tag">ProcessPoolExecutor</span>
+            <span class="tech-tag">--workers 3</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="step">
+      <div class="step-head">
+        <div class="step-icon" style="background: var(--gray)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4"/>
+            <circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+        <div class="step-head-text">
+          <div class="step-eyebrow">Adım 10</div>
+          <div class="step-title">İnsan son kontrolü yapıyor, hastane sistemine kaydediliyor</div>
+        </div>
+        <span class="step-status status-todo">Henüz başlamadı</span>
+      </div>
+      <div class="step-body">
+        <p class="step-text">
+          Bilgisayarın "emin olamadığı" ya da tansiyon/nabız/ilaç gibi kritik
+          bilgiler içeren alanlar mutlaka bir insan tarafından son kez
+          kontrol edilecek. En sonunda onaylanan bilgiler hastane sistemine
+          kaydedilecek.
+        </p>
+      </div>
+      <details>
+        <summary>🔧 Teknik detaylar</summary>
+        <div class="tech-panel">
+          Güven skoru düşük (özellikle %85 altı) alanlar + kritik tıbbi
+          alanlar insan doğrulamasına düşecek şekilde işaretlenecek — bu
+          adımın kodu henüz yazılmadı. Hastane Bilgi Sistemi'ne aktarım
+          bağlantısı da henüz tasarlanmadı.
+        </div>
+      </details>
+    </div>
+
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Sık geçen terimler, sade anlamıyla</h2>
+    <div class="glossary">
+      <div class="gloss-item">
+        <div class="gloss-term">El yazısı tanıma (OCR)</div>
+        <div class="gloss-def">Bir fotoğraftaki yazıyı okuyup bilgisayar metnine
+          çeviren teknoloji. Matbu (bilgisayar) yazı için kolay, el yazısı için
+          çok daha zor — çünkü herkesin yazısı farklı.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Model / model eğitimi</div>
+        <div class="gloss-def">"Model", bilgisayarın öğrendiklerini sakladığı
+          bir program. "Eğitim", ona binlerce örnek göstererek bu programı
+          adım adım iyileştirme sürecidir.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Hata oranı (CER)</div>
+        <div class="gloss-def">Bilgisayarın okuduğu metinde kaç harfin yanlış
+          olduğunu gösteren yüzde. %10 hata oranı, her 10 harften 1'inin
+          yanlış okunduğu anlamına gelir.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Veritabanı (PostgreSQL)</div>
+        <div class="gloss-def">Dev ve düzenli bir dijital dolap gibi düşünün —
+          binlerce kaydı hızlı, güvenli ve aranabilir şekilde saklayan bir
+          sistem.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Son güncelleme: 2026-09-23 · İkinci öğrenme denemesi (v4) tamamlandı,
+    bilgisayar şimdi 60.000 formu okumaya hazırlanıyor. Bu sayfa bir
+    sonraki önemli aşamada (insan kontrolü / hastane sistemine aktarım
+    başladığında) yeniden güncellenecek.
+  </footer>
+
+</div>
+
+</body>
+</html>
