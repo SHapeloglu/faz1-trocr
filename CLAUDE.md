@@ -1,44 +1,30 @@
-# CLAUDE.md
+# CLAUDE.md — Faz 1 TrOCR PoC (ilk kanıt çalışması)
 
-Bu dosya, bu proje üzerinde çalışırken Claude'un (Claude Code dahil) izlemesi gereken bağlamı ve kuralları içerir.
+EK-2 işe giriş / periyodik muayene formlarındaki el yazısı alanları için `microsoft/trocr-base-handwritten`'ın **ince ayarsız** Türkçe performansını ölçen containerize PoC. Üç bağımsız adım dosya üzerinden birbirini besler: hücre kesme (OpenCV) → TrOCR tahmini → değerlendirme (CER/WER, alan doğruluğu, sözlük katkısı).
 
-## Proje
+- GitHub: https://github.com/SHapeloglu/faz1-trocr (2026-07-20; 09-24'te `OCR.html` eklendi)
+- **Aktif proje: `/root/faz1-trocr-main` (repo `SHapeloglu/trocr-faz1`)** — koordinat/homografi, etiketleme, ince ayar (v4, CER %12,43), toplu çalıştırma ve Faz 8 doğal dil sorgu katmanı orada. Bu repo başlangıç PoC'u ve referans.
+- Sentetik test formları: **SyntheticFormGenerator_v3.2**.
+- Ayrıntılı geliştirici rehberi: `README.md` (üçüncü parti bileşenler, pipeline, genişletme adımları) · `KURULUM.md`
+- Mimari: `architect.md` · Görevler: `task.md` · Fikirler: `backlog.md` · Günlük: `session.md`
 
-**Faz 1 — TrOCR El Yazısı Tanıma PoC** — El yazısı form alanlarını (hasta adı, tanı kodu, ilaç adı vb.) otomatik tanımak için Microsoft'un TrOCR modelini kullanan, containerize edilmiş bir kanıt-of-konsept (PoC) pipeline'ı. Amaç, tam bir sisteme yatırım yapmadan önce TrOCR'ın Türkçe el yazısındaki ham (fine-tune öncesi) performansını ölçmek. ---
-
-- GitHub: https://github.com/SHapeloglu/faz1-trocr
-- Sunucu (Contabo): /root/faz1-trocr
-
-## Teknoloji Yığını
-
-- Docker / docker compose
-- Python
-
-## Önemli Dosyalar
-
-- `Dockerfile`
-- `docker-compose.yml`
-
-Mimari ayrıntılar için bkz. `architect.md`.
-
-## Sık Kullanılan Komutlar
+## Komutlar
 
 ```bash
-docker compose up -d --build
-docker compose logs -f
+docker compose build                              # image poc-trocr:0.1, CPU torch 2.3.1, transformers 4.44.2
+docker compose run --rm trocr --gt-taslak         # data/cikti/ground_truth/ için etiketleme taslağı
+# ground_truth JSON'larını elle doldur
+docker compose run --rm trocr                     # data/cikti/tahminler/*.json
+python3 degerlendir.py --gt data/cikti/ground_truth --pred data/cikti/tahminler   # → faz1_sonuc.csv
+python3 hucre_kes.py ...                          # formlar/*.png → data/giris/FORMID__alan.png (alan_haritasi.json ile)
 ```
+
+Model ağırlıkları (~1,3 GB) ilk çalıştırmada `./models`'e iner (gitignore'da). Container `mem_limit: 5g`, `cpus: 4`.
 
 ## Kurallar
 
-- `.env`, parola, token ve API anahtarlarını asla commit etme.
-- Her çalışma oturumunun sonunda `session.md`ye kısa kayıt düş; görev durumunu `task.md`de güncelle.
-- Önceliklendirilmemiş fikirleri `backlog.md`ye yaz; somutlaşınca `task.md`ye taşı.
-
-## Çalışma Dosyaları
-
-| Dosya | Amaç |
-|---|---|
-| `architect.md` | Mimari ve dizin yapısı referansı |
-| `task.md` | Aktif / devam eden / tamamlanan görevler |
-| `backlog.md` | Önceliklendirilmemiş fikir ve teknik borç havuzu |
-| `session.md` | Oturum günlüğü — her oturum sonunda güncellenir |
+- **Gerçek hasta/çalışan formu bu repoya konmaz** — sağlık verisi (KVKK özel nitelikli). Repodaki `F0001` sentetik örnektir.
+- Yeni geliştirme normalde `trocr-faz1` reposunda; bu repoda değişiklik yapmadan önce kullanıcıya sor.
+- Sürüm sabitleri (`Dockerfile`, `image: poc-trocr:0.X`) benchmark tekrarlanabilirliği için; kütüphane yükseltirsen imaj etiketini de artır.
+- `OCR.html` paydaşlara yönelik süreç anlatımı ("El Yazılı Formlar Nasıl Bilgisayara Aktarılıyor?").
+- Oturum sonunda `session.md`'ye kayıt düş, `task.md`'yi güncelle.

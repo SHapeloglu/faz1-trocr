@@ -1,57 +1,28 @@
-# architect.md — Faz 1 — TrOCR El Yazısı Tanıma PoC Mimari Referansı
+# architect.md — Faz 1 TrOCR PoC Mimarisi
 
-Bu dosya projenin yapısının hızlı-referans özetidir. Kod değiştikçe güncel tutun.
-
-## Genel Bakış
-
-El yazısı form alanlarını (hasta adı, tanı kodu, ilaç adı vb.) otomatik tanımak için Microsoft'un TrOCR modelini kullanan, containerize edilmiş bir kanıt-of-konsept (PoC) pipeline'ı. Amaç, tam bir sisteme yatırım yapmadan önce TrOCR'ın Türkçe el yazısındaki ham (fine-tune öncesi) performansını ölçmek. ---
-
-## Teknoloji Yığını
-
-- Docker / docker compose
-- Python
-
-## Dizin Yapısı
+> Ayrıntı: `README.md` §2. Güncel sistem mimarisi: `/root/faz1-trocr-main/ARCHITECTURE.md`.
 
 ```
-.gitignore
-Dockerfile
-KURULUM.md
-OCR.html
-README.md
-alan_haritasi.json
-alan_haritasi_ornek.json
-data/
-degerlendir.py
-docker-compose.yml
-faz1_sonuc.csv
-formlar/
-  F0001.png
-hucre_kes.py
-trocr_calistir.py
+formlar/*.png (form taraması)
+   │ hucre_kes.py — OpenCV ile tablo hücresi tespiti; alan_haritasi.json (r<satır>_c<sütun> → alan adı)
+   ▼
+data/giris/FORMID__<alan>.png
+   │ trocr_calistir.py — TrOCR (VisionEncoderDecoder, CPU) her kırpıntı → metin + güven; --gt-taslak modu
+   ▼
+data/cikti/tahminler/FORMID.json   +   data/cikti/ground_truth/FORMID.json (elle)
+   │ degerlendir.py — CER/WER, ham vs sözlük sonrası doğruluk, otomasyon oranı
+   ▼
+faz1_sonuc.csv (form_id, alan_adi, alan_tipi, sozluk, zorluk, doktor, tarama, ref, ham, sozluk_sonrasi, cer, wer, dogru_ham, dogru_sozluk, guven)
 ```
 
-## Modüller / Kaynak Dosyalar
+## Bileşenler
 
-- `degerlendir.py` — degerlendir.py — El yazılı form dijitalleştirme PoC değerlendirme aracı
-- `hucre_kes.py` — hucre_kes.py — Tablo çizgili formlardan hücreleri otomatik kesme
-- `trocr_calistir.py` — trocr_calistir.py — Faz 1 hızlı testi: TrOCR ile el yazısı kırpıntı tanıma
-
-## Giriş Noktaları ve Yapılandırma
-
-- `Dockerfile`
-- `docker-compose.yml`
-
-## Dağıtım / Çalışma Ortamı
-
-- GitHub: https://github.com/SHapeloglu/faz1-trocr
-- Sunucu (Contabo): /root/faz1-trocr
-
-## Diğer Dokümanlar
-
-- `KURULUM.md`
-- `README.md`
+| Bizim kodumuz | Üçüncü parti |
+|---|---|
+| `hucre_kes.py`, `trocr_calistir.py`, `degerlendir.py`, `alan_haritasi*.json`, `Dockerfile`, `docker-compose.yml` | TrOCR ağırlıkları (HF Hub), transformers, PyTorch CPU, OpenCV, Docker |
 
 ## Mimari Kararlar
 
-_Önemli tasarım kararlarını ve gerekçelerini buraya ekleyin (ör. "X yerine Y seçildi çünkü ...")._
+- **Aşamalar arası dosya arayüzü** (PNG/JSON/CSV): her adım bağımsız değiştirilip test edilebilsin.
+- **CPU-only Docker imajı**: GPU'suz VPS; imaj ~700 MB.
+- **Önce ölç, sonra yatırım yap**: ince ayar (Faz 2+) kararı bu PoC'un ham CER sonuçlarına göre verildi → `trocr-faz1`.

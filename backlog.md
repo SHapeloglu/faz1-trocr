@@ -1,21 +1,12 @@
-# backlog.md — Faz 1 — TrOCR El Yazısı Tanıma PoC Fikir / Özellik Havuzu
+# backlog.md — Faz 1 TrOCR PoC Fikir Havuzu
 
-Bu dosya henüz önceliklendirilmemiş, "bir gün yapılabilir" fikirler ve özellik talepleri içindir. Bir fikir somutlaşıp sıraya girdiğinde buradan çıkar, `task.md`ye taşınır.
-
-## Fikirler
-
-_(henüz boş — yeni bir fikir geldiğinde aşağıdaki şablonla ekle)_
-
-## Koddaki TODO / FIXME Notları
-
-_(kodda TODO/FIXME notu bulunamadı)_
+PoC kapsamındaki fikirler `trocr-faz1` reposunda hayata geçti (ince ayar, homografi, sözlük, NL sorgu). Yeni fikirler oraya (`/root/faz1-trocr-main/BACKLOG.md`) yazılmalı.
 
 ## Ekleme Şablonu
 
 ```markdown
 ### Başlık
-
-- **Kategori:** yeni özellik / iyileştirme / teknik borç / araştırma
-- **Neden istendi:** kısa gerekçe
-- **Notlar:** büyüklük tahmini, bağımlılıklar, riskler
+- **Kategori:** model / veri / değerlendirme / altyapı
+- **Neden:** kısa gerekçe
+- **Notlar:** ölçüm, risk
 ```
