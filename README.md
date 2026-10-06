@@ -1,5 +1,10 @@
 # Faz 1 — TrOCR El Yazısı Tanıma PoC
 
+> **Arşiv (2026-10-06):** Bu repo tamamlanmış başlangıç PoC'udur ve salt
+> okunurdur. Aktif geliştirme (koordinat/homografi, etiketleme, ince ayar,
+> toplu çalıştırma, doğal dil sorgu katmanı) `SHapeloglu/trocr-faz1`
+> reposunda sürüyor. Sonuç için bkz. [§5 Faz 1 Sonucu](#5-faz-1-sonucu).
+
 El yazısı form alanlarını (hasta adı, tanı kodu, ilaç adı vb.) otomatik
 tanımak için Microsoft'un TrOCR modelini kullanan, containerize edilmiş
 bir kanıt-of-konsept (PoC) pipeline'ı. Amaç, tam bir sisteme yatırım
@@ -45,7 +50,7 @@ otomatik olarak inecektir.
 ## 2. Pipeline Mimarisi (Bizim Kodumuz)
 
 ```
-formlar/*.jpg (ham form taramaları)
+formlar/*.png|jpg (ham form taramaları)
       │
       ▼
 hucre_kes.py  ──────────────► data/giris/FORMID__alan_adi.png
@@ -77,6 +82,12 @@ edebilmeyi kolaylaştırıyor.
 | `trocr_calistir.py` | Kırpıntıları TrOCR ile okuma; `--gt-taslak` ile boş etiketleme şablonu üretme |
 | `degerlendir.py` | Ground truth ile tahminleri karşılaştırıp CER/WER, alan doğruluğu, sözlük katkısı ve otomasyon oranı metriklerini hesaplama |
 | `alan_haritasi_ornek.json` | Hücre konumu (`r1_c2` gibi satır/sütun) → anlamlı alan adı (`hasta_adi`) eşleme şeması örneği |
+| `alan_haritasi.json` | Sentetik EK-2 formu (`F0001`) için kullanılan gerçek harita (11 alan) |
+| `formlar/` | Hücre kesmeye girecek form taramaları (repoda sentetik `F0001.png`) |
+| `data/giris/` | `hucre_kes.py` çıktısı / `trocr_calistir.py` girdisi olan kırpıntılar |
+| `data/onizleme/` | `hucre_kes.py`'nin hücre sınırlarını çizdiği kontrol görselleri |
+| `data/cikti/` | `ground_truth/` (elle doldurulan) ve `tahminler/` (model çıktısı) JSON'ları |
+| `OCR.html` | Paydaşlara yönelik süreç anlatımı ("El Yazılı Formlar Nasıl Bilgisayara Aktarılıyor?") |
 | `Dockerfile` / `docker-compose.yml` | Ortamın tanımı ve çalıştırma komutları |
 | `KURULUM.md` | Adım adım kurulum ve çalıştırma talimatı |
 
@@ -165,6 +176,13 @@ CSV çıktısına yeni bir sütun olarak dahil etmek yeterlidir.
 Detaylı adımlar için bkz. [`KURULUM.md`](./KURULUM.md). Özet:
 
 ```bash
+# (opsiyonel) form taramalarından hücre kes — ana makinede, Docker dışında:
+pip install opencv-python numpy
+python3 hucre_kes.py --giris formlar/ --cikti data/giris/ --harita alan_haritasi.json
+#   → data/giris/FORMID__alan.png + data/onizleme/FORMID_onizleme.png
+#   parametreler: --harita yoksa dosyalar FORMID__r<satır>_c<sütun>.png adını alır;
+#   --ic-pay (vars. 4) hücre kenarlığından içeri kırpma payı (piksel)
+
 docker compose build
 docker compose run --rm trocr --gt-taslak   # etiketleme taslağı üret
 # ground_truth/ dosyalarını elle doldurun
@@ -172,3 +190,27 @@ docker compose run --rm trocr               # tahmin üret
 python3 degerlendir.py --gt data/cikti/ground_truth \
     --tahmin data/cikti/tahminler --csv faz1_sonuc.csv
 ```
+
+`hucre_kes.py` Docker imajında **yer almaz** (imaj yalnızca
+`trocr_calistir.py`'yi içerir, OpenCV kurulu değildir); bu yüzden ana
+makinede çalıştırılır. `degerlendir.py` yalnızca standart kütüphane
+kullanır, o da ana makinede çalışır.
+
+---
+
+## 5. Faz 1 Sonucu
+
+PoC, sentetik EK-2 formu `F0001` üzerindeki 9 el yazısı alanıyla
+(`data/giris/`) çalıştırıldı. İnce ayarsız `trocr-base-handwritten`
+Türkçe el yazısını okuyamadı: çıktılar anlamsız İngilizce cümleler
+(ör. nabız alanı için *"the CEC was able to be able to…"*), güven
+skorları 0,10–0,42 aralığında (`data/cikti/tahminler/F0001.json`).
+
+Bu, `KURULUM.md` §7'deki tabloya göre **"> %40 — Türkçe uyum sorunu
+ciddi"** senaryosudur; sayısal ham CER kaydedilmedi. Karar: erken ince
+ayara geçildi. Devamı `trocr-faz1` reposunda — v3 eval CER %44,1 → v4
+eval CER **%12,43**; sağlıklı formlarda %98,8 tam eşleşme.
+
+**Not:** `data/cikti/ground_truth/F0001.json` ve `faz1_sonuc.csv`
+içindeki `DOLDUR` değerleri etiketleme formatını gösteren **örnek
+taslaklardır**; gerçek ölçüm değildir.

@@ -1,6 +1,6 @@
 # Faz 1 — TrOCR el yazısı tanıma container'ı (CPU)
 # 4 çekirdek / 8 GB RAM VPS için ayarlandı; sürümler tekrarlanabilirlik
-# için sabitlendi (benchmarking.md'ye imaj sürümü not edilecek).
+# için sabitlendi (imaj sürümü README.md §5'e not edilir).
 
 FROM python:3.11-slim
 

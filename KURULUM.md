@@ -26,8 +26,17 @@ docker compose build
 
 ## 3. Kırpıntıları hazırla
 
-Anonim/sentetik formlardan 20-30 el yazısı alanını kırpın (ekran
-görüntüsü aracı bile yeterli). Adlandırma kuralı — çift alt çizgi:
+Tablo çizgili form taramaları varsa `hucre_kes.py` ile otomatik kesin
+(ana makinede, Docker dışında — imajda OpenCV yok):
+
+```bash
+pip install opencv-python numpy
+python3 hucre_kes.py --giris formlar/ --cikti data/giris/ --harita alan_haritasi.json
+# data/onizleme/FORMID_onizleme.png ile hücre eşlemesini kontrol edin
+```
+
+Elle kırpmak da mümkün: anonim/sentetik formlardan 20-30 el yazısı
+alanını kırpın (ekran görüntüsü aracı bile yeterli). Adlandırma kuralı — çift alt çizgi:
 
 ```
 data/giris/F0001__hasta_adi.png
@@ -73,7 +82,7 @@ python3 degerlendir.py \
 | %15-35 | Beklenen aralık | Faz 2'ye geç; sözlük + fine-tuning hedefe taşır |
 | > %40 | Türkçe uyum sorunu ciddi | Durup strateji gözden geçir: erken fine-tuning veya PaddleOCR-VL denemesi |
 
-Sayıları ve imaj sürümünü (poc-trocr:0.1) benchmarking.md'ye not edin.
+Sayıları ve imaj sürümünü (poc-trocr:0.1) `README.md` §5 "Faz 1 Sonucu" bölümüne not edin.
 
 ## Sorun giderme
 
